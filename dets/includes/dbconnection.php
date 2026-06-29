@@ -2,9 +2,21 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$con = mysqli_connect("localhost", "root", "", "detsdb");
+$maxAttempts = 10;
+$attempt = 0;
+$con = false;
+
+while ($attempt < $maxAttempts) {
+    $con = @mysqli_connect("db", "detsuser", "detspassword", "detsdb");
+    if ($con) {
+        break;
+    }
+    $attempt++;
+    sleep(2);
+}
 
 if (!$con) {
-    die("Connection Failed: " . mysqli_connect_error());
+    $error = mysqli_connect_error();
+    die("Connection Failed after $maxAttempts attempts: " . $error);
 }
 ?>

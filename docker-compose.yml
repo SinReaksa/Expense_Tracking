@@ -1,28 +1,46 @@
-version: "3.8"
-
-services:
-  web:
-    build: .
-    container_name: expense_app
-    ports:
-      - "8081:80"
-    volumes:
-      - ./dets:/var/www/html
-    depends_on:
-      - db
-
+﻿services:
   db:
-    image: mysql:8.0
-    container_name: expense_db
+    image: mysql:5.7
+    container_name: dets_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: detsdb
-    ports:
-      - "3306:3306"
+      MYSQL_USER: detsuser
+      MYSQL_PASSWORD: detspassword
+      MYSQL_ROOT_PASSWORD: root_password
     volumes:
       - db_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - "./SQL File/init.sql:/docker-entrypoint-initdb.d/init.sql:ro"
+
+  phpapp:
+    build: .
+    container_name: dets_phpapp
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8000:80"
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: detsuser
+      MYSQL_PASSWORD: detspassword
+      MYSQL_DB: detsdb
+    volumes:
+      - ./dets:/var/www/html
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: dets_phpmyadmin
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root_password
+      MYSQL_ROOT_PASSWORD: root_password
+    depends_on:
+      - db
 
 volumes:
   db_data:

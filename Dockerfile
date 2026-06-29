@@ -1,15 +1,17 @@
-FROM php:8.2-apache
+# Use the official PHP image with Apache
+FROM php:7.4-apache
 
-# Install mysqli extension (needed for your project)
-RUN docker-php-ext-install mysqli
+# Install PDO, MySQL and mysqli extensions
+RUN docker-php-ext-install pdo pdo_mysql mysqli
 
-# Enable Apache rewrite (optional but useful)
+# Enable mod_rewrite for Apache
 RUN a2enmod rewrite
 
-# Copy project into container
-COPY . /var/www/html/
+# Set the working directory
+WORKDIR /var/www/html
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html
+# Copy only the dets app folder into the container web root
+COPY dets/ /var/www/html/
 
+# Expose port 80 (default Apache port)
 EXPOSE 80
